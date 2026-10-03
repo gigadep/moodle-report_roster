@@ -110,5 +110,31 @@ $currentparams = [
 ];
 echo report_roster_output_action_buttons($id, $PAGE->url, $currentparams);
 
+// Display the selected group as the roster title.
+// Groups beginning with "Cohorte" are displayed without this prefix.
+if ($group > 0) {
+    $selectedgroup = groups_get_group($group);
+    if ($selectedgroup) {
+        $rostertitle = preg_replace('/^Cohorte\\s*/iu', '', trim($selectedgroup->name));
+
+        if ($rostertitle !== '') {
+            // Calculate the current French school year.
+            // The new school year starts on 1 August.
+            $currentyear = (int)userdate(time(), '%Y');
+            $currentmonth = (int)userdate(time(), '%m');
+
+            if ($currentmonth >= 8) {
+                $schoolyear = $currentyear . '/' . ($currentyear + 1);
+            } else {
+                $schoolyear = ($currentyear - 1) . '/' . $currentyear;
+            }
+
+            $rostertitle .= ' — ' . $schoolyear;
+
+            echo html_writer::tag('h2', $rostertitle, ['class' => 'report-roster-title']);
+        }
+    }
+}
+
 echo html_writer::alist($data, ['class' => 'report-roster']);
 echo $OUTPUT->footer();
